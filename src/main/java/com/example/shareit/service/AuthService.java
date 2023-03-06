@@ -1,6 +1,7 @@
 package com.example.shareit.service;
 
 import com.example.shareit.dto.RegisterRequest;
+import com.example.shareit.exceptions.SpringShareitException;
 import com.example.shareit.model.NotificationEmail;
 import com.example.shareit.model.User;
 import com.example.shareit.model.VerificationToken;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -51,5 +53,19 @@ public class AuthService {
         verificationTokenRepository.save(verificationToken);
 
         return token;
+    }
+
+    public void verifyAccount(String token) {
+        Optional<VerificationToken> verificationToken = verificationTokenRepository.findByToken(token);
+        verificationToken.orElseThrow(() -> new SpringShareitException("Invalid token"));
+        fetchUserAndEnable(verificationToken.get());
+    }
+
+    @Transactional
+    public void fetchUserAndEnable(VerificationToken verificationToken) {
+        String username = verificationToken.getUser().getUsername();
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new SpringShareitException("User with username - " + username + " not found"));
+        user.setEnabled(true);
+        userRepository.save(user);
     }
 }
