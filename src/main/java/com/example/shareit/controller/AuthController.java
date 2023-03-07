@@ -1,5 +1,6 @@
 package com.example.shareit.controller;
 
+import com.example.shareit.dto.LoginRequest;
 import com.example.shareit.dto.RegisterRequest;
 import com.example.shareit.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -26,5 +27,10 @@ public class AuthController {
         authService.verifyAccount(token);
 
         return new ResponseEntity<>("Account activated successfully", HttpStatus.OK);
+    }
+
+    @PostMapping("login")
+    public void login(@RequestBody LoginRequest loginRequest) {
+
     }
 }
