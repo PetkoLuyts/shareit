@@ -31,6 +31,6 @@ public class AuthController {
 
     @PostMapping("login")
     public void login(@RequestBody LoginRequest loginRequest) {
-
+        authService.login(loginRequest);
     }
 }

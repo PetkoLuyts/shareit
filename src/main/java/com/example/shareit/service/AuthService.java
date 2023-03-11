@@ -1,5 +1,6 @@
 package com.example.shareit.service;
 
+import com.example.shareit.dto.LoginRequest;
 import com.example.shareit.dto.RegisterRequest;
 import com.example.shareit.exceptions.SpringShareitException;
 import com.example.shareit.model.NotificationEmail;
@@ -8,6 +9,8 @@ import com.example.shareit.model.VerificationToken;
 import com.example.shareit.repository.UserRepository;
 import com.example.shareit.repository.VerificationTokenRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final VerificationTokenRepository verificationTokenRepository;
     private final MailService mailService;
+    private final AuthenticationManager authenticationManager;
 
     @Transactional
     public void signup(RegisterRequest registerRequest) {
@@ -67,5 +71,9 @@ public class AuthService {
         User user = userRepository.findByUsername(username).orElseThrow(() -> new SpringShareitException("User with username - " + username + " not found"));
         user.setEnabled(true);
         userRepository.save(user);
+    }
+
+    public void login(LoginRequest loginRequest) {
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
     }
 }
