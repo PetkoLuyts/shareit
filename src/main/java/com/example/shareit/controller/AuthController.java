@@ -1,5 +1,6 @@
 package com.example.shareit.controller;
 
+import com.example.shareit.dto.AuthenticationResponse;
 import com.example.shareit.dto.LoginRequest;
 import com.example.shareit.dto.RegisterRequest;
 import com.example.shareit.service.AuthService;
@@ -30,7 +31,7 @@ public class AuthController {
     }
 
     @PostMapping("login")
-    public void login(@RequestBody LoginRequest loginRequest) {
-        authService.login(loginRequest);
+    public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
+        return authService.login(loginRequest);
     }
 }

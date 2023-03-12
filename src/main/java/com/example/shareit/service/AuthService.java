@@ -1,5 +1,6 @@
 package com.example.shareit.service;
 
+import com.example.shareit.dto.AuthenticationResponse;
 import com.example.shareit.dto.LoginRequest;
 import com.example.shareit.dto.RegisterRequest;
 import com.example.shareit.exceptions.SpringShareitException;
@@ -77,10 +78,11 @@ public class AuthService {
         userRepository.save(user);
     }
 
-    public void login(LoginRequest loginRequest) {
+    public AuthenticationResponse login(LoginRequest loginRequest) {
         Authentication authenticate = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         String token = jwtProvider.generateToken(authenticate);
 
+        return new AuthenticationResponse(token, loginRequest.getUsername());
     }
 }

@@ -1,7 +1,7 @@
 package com.example.shareit.security;
 
 import com.example.shareit.exceptions.SpringShareitException;
-import com.example.shareit.model.User;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
+
+import static io.jsonwebtoken.Jwts.parser;
 
 @Service
 public class JwtProvider {
@@ -28,7 +30,7 @@ public class JwtProvider {
     }
 
     public String generateToken(Authentication authentication) {
-        User principal = (User) authentication.getPrincipal();
+        org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
 
         return Jwts.builder()
                 .setSubject(principal.getUsername())
@@ -38,9 +40,31 @@ public class JwtProvider {
 
     private PrivateKey getPrivateKey() {
         try {
-            return (PrivateKey) keyStore.getKey("springblog", "secret".toCharArray());
+            return (PrivateKey) keyStore.getKey("springblog.jks", "secret".toCharArray());
         } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
             throw new SpringShareitException("Exception occurred while retrieving public key from keystore");
         }
+    }
+
+    public boolean validateToken(String jwt) {
+        parser().setSigningKey(getPublicKey()).parseClaimsJws(jwt);
+        return true;
+    }
+
+    private PublicKey getPublicKey() {
+        try {
+            return keyStore.getCertificate("springblog").getPublicKey();
+        } catch (KeyStoreException e) {
+            throw new SpringShareitException("Exception occurred while retrieving public key");
+        }
+    }
+
+    public String getUsernameFromJwt(String token) {
+        Claims claims = parser()
+                .setSigningKey(getPublicKey())
+                .parseClaimsJws(token)
+                .getBody();
+
+        return claims.getSubject();
     }
 }
