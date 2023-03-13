@@ -1,6 +1,7 @@
 package com.example.shareit.controller;
 
 import com.example.shareit.dto.SubredditDto;
+import com.example.shareit.model.Subreddit;
 import com.example.shareit.service.SubredditService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,5 +28,10 @@ public class SubredditController {
     @GetMapping
     public ResponseEntity<List<SubredditDto>> getAllSubreddits() {
         return ResponseEntity.status(HttpStatus.OK).body(subredditService.getAll());
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SubredditDto> getSubreddit(@PathVariable Long id) {
+        return ResponseEntity.status(HttpStatus.OK).body(subredditService.getSubreddit(id));
     }
 }

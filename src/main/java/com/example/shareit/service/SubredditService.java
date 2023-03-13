@@ -1,6 +1,7 @@
 package com.example.shareit.service;
 
 import com.example.shareit.dto.SubredditDto;
+import com.example.shareit.exceptions.SpringShareitException;
 import com.example.shareit.mapper.SubredditMapper;
 import com.example.shareit.model.Subreddit;
 import com.example.shareit.repository.SubredditRepository;
@@ -35,5 +36,12 @@ public class SubredditService {
                 .stream()
                 .map(subredditMapper::mapSubredditToDto)
                 .collect(toList());
+    }
+
+    public SubredditDto getSubreddit(Long id) {
+        Subreddit subreddit = subredditRepository.findById(id)
+                .orElseThrow(() -> new SpringShareitException("No subreddit found with id " + id));
+
+        return subredditMapper.mapSubredditToDto(subreddit);
     }
 }
