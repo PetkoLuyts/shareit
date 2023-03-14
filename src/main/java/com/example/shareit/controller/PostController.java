@@ -33,4 +33,10 @@ public class PostController {
     public ResponseEntity<PostResponse> getPost(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(postService.getPost(id));
     }
+
+    @GetMapping(params = "subredditId")
+    public ResponseEntity<List<PostResponse>> getPostsBySubreddit(@RequestParam Long subredditId) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(postService.getPostsBySubreddit(subredditId));
+    }
 }

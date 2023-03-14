@@ -49,6 +49,16 @@ public class PostService {
     public PostResponse getPost(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFountException(id.toString()));
+
         return postMapper.mapToDto(post);
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getPostsBySubreddit(Long subredditId) {
+        Subreddit subreddit = subredditRepository.findById(subredditId)
+                .orElseThrow(() -> new SubredditNotFoundException(subredditId.toString()));
+        List<Post> posts = postRepository.findAllBySubreddit(subreddit);
+
+        return posts.stream().map(postMapper::mapToDto).collect(Collectors.toList());
     }
 }
