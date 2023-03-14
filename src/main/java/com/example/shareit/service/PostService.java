@@ -2,6 +2,7 @@ package com.example.shareit.service;
 
 import com.example.shareit.dto.PostRequest;
 import com.example.shareit.dto.PostResponse;
+import com.example.shareit.exceptions.PostNotFountException;
 import com.example.shareit.exceptions.SubredditNotFoundException;
 import com.example.shareit.mapper.PostMapper;
 import com.example.shareit.model.Post;
@@ -12,8 +13,8 @@ import com.example.shareit.repository.SubredditRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,11 +37,18 @@ public class PostService {
         return postMapper.map(postRequest, subreddit, currentUser);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<PostResponse> getAllPosts() {
          return postRepository.findAll()
                  .stream()
                  .map(postMapper::mapToDto)
                  .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public PostResponse getPost(Long id) {
+        Post post = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFountException(id.toString()));
+        return postMapper.mapToDto(post);
     }
 }
