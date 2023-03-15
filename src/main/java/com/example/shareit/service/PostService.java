@@ -10,8 +10,10 @@ import com.example.shareit.model.Subreddit;
 import com.example.shareit.model.User;
 import com.example.shareit.repository.PostRepository;
 import com.example.shareit.repository.SubredditRepository;
+import com.example.shareit.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +28,7 @@ public class PostService {
 
     private final SubredditRepository subredditRepository;
     private final PostRepository postRepository;
+    private final UserRepository userRepository;
     private final AuthService authService;
     private final PostMapper postMapper;
 
@@ -58,6 +61,15 @@ public class PostService {
         Subreddit subreddit = subredditRepository.findById(subredditId)
                 .orElseThrow(() -> new SubredditNotFoundException(subredditId.toString()));
         List<Post> posts = postRepository.findAllBySubreddit(subreddit);
+
+        return posts.stream().map(postMapper::mapToDto).collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<PostResponse> getPostsByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+        List<Post> posts = postRepository.findAllByUser(user);
 
         return posts.stream().map(postMapper::mapToDto).collect(Collectors.toList());
     }
