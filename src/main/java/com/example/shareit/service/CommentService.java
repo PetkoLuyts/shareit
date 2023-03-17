@@ -13,6 +13,9 @@ import com.example.shareit.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @AllArgsConstructor
 public class CommentService {
@@ -41,5 +44,15 @@ public class CommentService {
     private void sendCommentNotification(String message, User user) {
         mailService.sendMail(new NotificationEmail(user.getUsername() + "Commented on your post",
                 user.getEmail(), message));
+    }
+
+    public List<CommentsDto> getAllCommentsForPost(Long postId) {
+        Post post = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFountException(postId.toString()));
+
+        return commentRepository.findByPost(post)
+                .stream()
+                .map(commentMapper::mapToDto)
+                .collect(Collectors.toList());
     }
 }

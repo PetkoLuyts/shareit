@@ -5,10 +5,9 @@ import com.example.shareit.service.CommentService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -21,5 +20,13 @@ public class CommentsController {
         commentService.save(commentsDto);
 
         return new ResponseEntity<>(HttpStatus.CREATED);
+    }
+
+    @GetMapping(params = "postId")
+    public ResponseEntity<List<CommentsDto>> getAllCommentsForPost(@RequestParam Long postId) {
+        commentService.getAllCommentsForPost(postId);
+
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(commentService.getAllCommentsForPost(postId));
     }
 }
