@@ -11,6 +11,7 @@ import com.example.shareit.repository.CommentRepository;
 import com.example.shareit.repository.PostRepository;
 import com.example.shareit.repository.UserRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,6 +52,16 @@ public class CommentService {
                 .orElseThrow(() -> new PostNotFountException(postId.toString()));
 
         return commentRepository.findByPost(post)
+                .stream()
+                .map(commentMapper::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    public List<CommentsDto> getAllCommentsForUser(String userName) {
+        User user = userRepository.findByUsername(userName)
+                .orElseThrow(() -> new UsernameNotFoundException(userName));
+
+        return commentRepository.findByUser(user)
                 .stream()
                 .map(commentMapper::mapToDto)
                 .collect(Collectors.toList());
