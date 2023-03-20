@@ -50,6 +50,11 @@
             <version>${org.mapstruct.version}</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok-mapstruct-binding</artifactId>
+            <version>0.2.0</version>
+        </dependency>
 
         <!-- For Displaying time as Relative Time Ago ("Posted 1 Day ago")-->
         <dependency>
