@@ -46,6 +46,15 @@ public class JwtProvider {
                 .compact();
     }
 
+    public String generateTokenWithUsername(String username) {
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(Date.from(Instant.now()))
+                .signWith(getPrivateKey())
+                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
+                .compact();
+    }
+
     private PrivateKey getPrivateKey() {
         try {
             return (PrivateKey) keyStore.getKey("springblog.jks", "secret".toCharArray());
