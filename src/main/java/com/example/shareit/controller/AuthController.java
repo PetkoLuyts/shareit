@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+
 @RestController
 @RequestMapping("/api/auth")
 @AllArgsConstructor
@@ -33,5 +35,10 @@ public class AuthController {
     @PostMapping("login")
     public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
+    }
+
+    @PostMapping("refresh/token")
+    public AuthenticationResponse refreshTokens() {
+        return null;
     }
 }
