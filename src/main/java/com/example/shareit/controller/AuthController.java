@@ -5,6 +5,7 @@ import com.example.shareit.dto.LoginRequest;
 import com.example.shareit.dto.RefreshTokenRequest;
 import com.example.shareit.dto.RegisterRequest;
 import com.example.shareit.service.AuthService;
+import com.example.shareit.service.RefreshTokenService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import javax.validation.Valid;
 public class AuthController {
 
     private final AuthService authService;
+    private final RefreshTokenService refreshTokenService;
 
     @PostMapping("/signup")
     public ResponseEntity<String> signup(@RequestBody RegisterRequest registerRequest) {
@@ -26,20 +28,27 @@ public class AuthController {
         return new ResponseEntity<>("User registration successful", HttpStatus.OK);
     }
 
-    @GetMapping("accountVerification/{token}")
+    @GetMapping("/accountVerification/{token}")
     public ResponseEntity<String> verifyAccount(@PathVariable String token) {
         authService.verifyAccount(token);
 
         return new ResponseEntity<>("Account activated successfully", HttpStatus.OK);
     }
 
-    @PostMapping("login")
+    @PostMapping("/login")
     public AuthenticationResponse login(@RequestBody LoginRequest loginRequest) {
         return authService.login(loginRequest);
     }
 
-    @PostMapping("refresh/token")
+    @PostMapping("/refresh/token")
     public AuthenticationResponse refreshTokens(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
         return authService.refreshToken(refreshTokenRequest);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        refreshTokenService.deleteRefreshToken(refreshTokenRequest.getRefreshToken());
+
+        return ResponseEntity.status(HttpStatus.OK).body("Refresh token deleted successfully");
     }
 }
