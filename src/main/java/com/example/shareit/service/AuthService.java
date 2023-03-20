@@ -2,6 +2,7 @@ package com.example.shareit.service;
 
 import com.example.shareit.dto.AuthenticationResponse;
 import com.example.shareit.dto.LoginRequest;
+import com.example.shareit.dto.RefreshTokenRequest;
 import com.example.shareit.dto.RegisterRequest;
 import com.example.shareit.exceptions.SpringShareitException;
 import com.example.shareit.model.NotificationEmail;
@@ -105,5 +106,9 @@ public class AuthService {
     public boolean isLoggedIn() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated();
+    }
+
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        return null;
     }
 }

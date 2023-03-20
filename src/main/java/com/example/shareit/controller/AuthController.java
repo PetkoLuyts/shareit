@@ -2,6 +2,7 @@ package com.example.shareit.controller;
 
 import com.example.shareit.dto.AuthenticationResponse;
 import com.example.shareit.dto.LoginRequest;
+import com.example.shareit.dto.RefreshTokenRequest;
 import com.example.shareit.dto.RegisterRequest;
 import com.example.shareit.service.AuthService;
 import lombok.AllArgsConstructor;
@@ -38,7 +39,7 @@ public class AuthController {
     }
 
     @PostMapping("refresh/token")
-    public AuthenticationResponse refreshTokens() {
-        return null;
+    public AuthenticationResponse refreshTokens(@Valid @RequestBody RefreshTokenRequest refreshTokenRequest) {
+        return authService.refreshToken(refreshTokenRequest);
     }
 }
