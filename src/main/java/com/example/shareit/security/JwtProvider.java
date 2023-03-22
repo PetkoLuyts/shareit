@@ -2,12 +2,14 @@ package com.example.shareit.security;
 
 import com.example.shareit.exceptions.SpringShareitException;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.jwt.JwtClaimsSet;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.*;
@@ -18,71 +20,29 @@ import java.util.Date;
 import static io.jsonwebtoken.Jwts.parser;
 
 @Service
+@RequiredArgsConstructor
 public class JwtProvider {
-    private KeyStore keyStore;
 
+    private final JwtEncoder jwtEncoder;
     @Value("${jwt.expiration.time}")
     private Long jwtExpirationInMillis;
-
-    @PostConstruct
-    public void init() {
-        try {
-            keyStore = keyStore.getInstance("JKS");
-            InputStream resourceAsStream = getClass().getResourceAsStream("/springblog.jks");
-            keyStore.load(resourceAsStream, "secret".toCharArray());
-        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            throw new SpringShareitException("Exception occurred while loading keystore");
-        }
-    }
 
     public String generateToken(Authentication authentication) {
         org.springframework.security.core.userdetails.User principal = (org.springframework.security.core.userdetails.User) authentication.getPrincipal();
 
-        return Jwts.builder()
-                .setSubject(principal.getUsername())
-                .setIssuedAt(Date.from(Instant.now()))
-                .signWith(getPrivateKey())
-                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
-                .compact();
+        return generateTokenWithUsername(principal.getUsername());
     }
 
     public String generateTokenWithUsername(String username) {
-        return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(Date.from(Instant.now()))
-                .signWith(getPrivateKey())
-                .setExpiration(Date.from(Instant.now().plusMillis(jwtExpirationInMillis)))
-                .compact();
-    }
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuer("self")
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plusMillis(jwtExpirationInMillis))
+                .subject(username)
+                .claim("scope", "ROLE_USER")
+                .build();
 
-    private PrivateKey getPrivateKey() {
-        try {
-            return (PrivateKey) keyStore.getKey("springblog.jks", "secret".toCharArray());
-        } catch (KeyStoreException | NoSuchAlgorithmException | UnrecoverableKeyException e) {
-            throw new SpringShareitException("Exception occurred while retrieving public key from keystore");
-        }
-    }
-
-    public boolean validateToken(String jwt) {
-        parser().setSigningKey(getPublicKey()).parseClaimsJws(jwt);
-        return true;
-    }
-
-    private PublicKey getPublicKey() {
-        try {
-            return keyStore.getCertificate("springblog").getPublicKey();
-        } catch (KeyStoreException e) {
-            throw new SpringShareitException("Exception occurred while retrieving public key");
-        }
-    }
-
-    public String getUsernameFromJwt(String token) {
-        Claims claims = parser()
-                .setSigningKey(getPublicKey())
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getSubject();
+        return this.jwtEncoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
     public Long getJwtExpirationInMillis() {
